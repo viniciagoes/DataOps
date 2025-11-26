@@ -13,6 +13,51 @@ This repository serves as a hands-on learning platform to explore:
 - **ETL/ELT Workflows** - Building and optimizing data transformation pipelines
 - **Data Quality & Testing** - Implementing robust data validation and monitoring
 
+## ✅ Next steps (task list)
+
+- [ ] Finish Setup
+
+- [ ] Implement unitary tests for basic scripts
+
+- [ ] Implement CDC
+
+- [ ] Implement unitary tests for CDC
+
+- [ ] Local dev setup
+    - [ ] Validate and pin dependencies in requirements.txt
+    - [ ] Provide example env file and secrets guidance
+
+- [ ] Core implementations
+    - [ ] Create a minimal end-to-end pipeline example in /pipelines/
+    - [ ] Implement a basic CDC example in /cdc/ (log-based and query-based)
+    - [ ] Add synthetic data generators in /data/generated/ with reproducible seeds
+
+- [ ] Testing & quality
+    - [ ] Add unit and integration tests in /tests/ for pipelines and CDC
+    - [ ] Implement data quality checks and assertion utilities
+    - [ ] Add linting (flake8/ruff) and formatters (black/isort)
+
+- [ ] CI/CD & automation
+    - [ ] Add GitHub Actions workflows: lint, test, build artifacts
+    - [ ] Create a deployment workflow for containerized runs (optional)
+    - [ ] Automate dataset regeneration and test-data refresh
+
+- [ ] Observability & monitoring
+    - [ ] Add basic pipeline health checks and logging structure
+    - [ ] Integrate metrics / simple dashboards (Prometheus/Grafana examples)
+
+- [ ] Documentation & learning materials
+    - [ ] Add step-by-step tutorials for each topic (DataGen, CDC, Pipelines)
+    - [ ] Maintain architecture diagrams and data flow examples in /docs/
+    - [ ] Curate references and reading notes per topic
+
+- [ ] Future & community
+    - [ ] Define a roadmap with milestones and priorities
+    - [ ] Solicit contributors and add first-timers issues
+    - [ ] Plan demos or notebooks showcasing end-to-end flows
+
+Suggested immediate priorities: repository hygiene, one working pipeline + CDC example, tests, and a CI workflow.
+
 ## 📊 Project Structure
 
 ```
