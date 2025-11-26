@@ -5,9 +5,10 @@ from polars import DataFrame
 
 
 class person:
-    def __init__(self, first_name, last_name, country, company, birthdate) -> None:
+    def __init__(self, first_name : str, last_name : str, country : str, company : str, birthdate : str) -> None:
         self.first_name = first_name
         self.last_name = last_name
+        self.email = f"{first_name.lower()}.{last_name.lower()}@email.com"
         self.country = country
         self.company = company
         self.birthdate = birthdate
@@ -16,6 +17,7 @@ class person:
         return {
             "first_name": self.first_name,
             "last_name_common": self.last_name,
+            "email" : self.email,
             "country": self.country,
             "company": self.company,
             "date_of_birth": self.birthdate,
