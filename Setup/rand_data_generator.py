@@ -54,7 +54,7 @@ def generate_client_data(fake: Faker, n: int) -> list:
 def generate_csv(data: list, data_type: str) -> None:
     df = DataFrame([p.__dict__() for p in data])
 
-    base_path = "rand_data/generated_data/"
+    base_path = "generated_data/"
 
     match data_type:
         case "clients":
