@@ -62,7 +62,7 @@ class Branch(Base):
 
     __tablename__ = "branches"
     branch_id = Column(Integer, primary_key=True)
-    branch_name = Column(String(100))
+    branch_name = Column(String(250))
     region_id = Column(Integer, ForeignKey("regions.region_id"))
 
 
@@ -94,7 +94,7 @@ class Product(Base):
 
     __tablename__ = "products"
     product_id = Column(Integer, primary_key=True)
-    product_name = Column(String(100))
+    product_name = Column(String(250))
     unit_price = Column(Numeric(10, 2))
     category = Column(Integer, ForeignKey("categories.category_id"))
 
@@ -114,9 +114,9 @@ class Customer(Base):
 
     __tablename__ = "customers"
     customer_id = Column(Integer, primary_key=True)
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    email = Column(String(100))
+    first_name = Column(String(250))
+    last_name = Column(String(250))
+    email = Column(String(250))
     loyalty_tier = Column(String(20))  # 'Gold', 'Silver', 'Bronze'
 
 
