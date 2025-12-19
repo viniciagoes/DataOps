@@ -1,3 +1,4 @@
 rand_data/generated_data
 .env
 __pycache__
+test.ipynb
