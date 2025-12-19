@@ -4,10 +4,10 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 from rand_data_generator import (
-    generate_client,
     generate_geo,
-    generate_orders,
-    generate_products,
+    generate_messy_client,
+    generate_messy_orders,
+    generate_messy_products,
 )
 from sqlalchemy import (
     Column,
@@ -37,12 +37,29 @@ Base = declarative_base()
 
 # --- GEOGRAPHY & ORG STRUCTURE ---
 class Region(Base):
+    """
+    Represents a geographical regin.
+
+    Attributes:
+        region_id (int): Primary key.
+        region_name (str): Name of the region.
+    """
+
     __tablename__ = "regions"
     region_id = Column(Integer, primary_key=True)
     region_name = Column(String(50))
 
 
 class Branch(Base):
+    """
+    Represents a store branch within a region.
+
+    Attributes:
+        branch_id (int): Primary key.
+        branch_name (str): Name of the branch.
+        region_id (int): Foreign key referencing the Region.
+    """
+
     __tablename__ = "branches"
     branch_id = Column(Integer, primary_key=True)
     branch_name = Column(String(100))
@@ -51,12 +68,30 @@ class Branch(Base):
 
 # --- PRODUCT HIERARCHY (The Snowflake Seed) ---
 class Category(Base):
+    """
+    Represents a product category.
+
+    Attributes:
+        category_id (int): Primary key.
+        name (str): Name of the category.
+    """
+
     __tablename__ = "categories"
     category_id = Column(Integer, primary_key=True)
     name = Column(String(50))
 
 
 class Product(Base):
+    """
+    Represents a product.
+
+    Attributes:
+        product_id (int): Primary key.
+        product_name (str): Name of the product.
+        unit_price (Decimal): Price of a single unit.
+        category (int): Foreign key referencing the Category.
+    """
+
     __tablename__ = "products"
     product_id = Column(Integer, primary_key=True)
     product_name = Column(String(100))
@@ -66,6 +101,17 @@ class Product(Base):
 
 # --- CUSTOMERS ---
 class Customer(Base):
+    """
+    Represents a customer.
+
+    Attributes:
+        customer_id (int): Primary key.
+        first_name (str): Customer's first name.
+        last_name (str): Customer's last name.
+        email (str): Customer's email address.
+        loyalty_tier (str): Loyalty program tier (e.g., 'Gold', 'Silver').
+    """
+
     __tablename__ = "customers"
     customer_id = Column(Integer, primary_key=True)
     first_name = Column(String(100))
@@ -76,6 +122,16 @@ class Customer(Base):
 
 # --- THE TRANSACTIONAL CORE (Header + Line Items) ---
 class OrderHeader(Base):
+    """
+    Represents the header of an order, linking it to a customer and branch.
+
+    Attributes:
+        order_id (int): Primary key.
+        customer_id (int): Foreign key referencing the Customer.
+        branch_id (int): Foreign key referencing the Branch.
+        order_timestamp (datetime): Timestamp when the order was placed.
+    """
+
     __tablename__ = "order_headers"
     order_id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey("customers.customer_id"))
@@ -84,6 +140,16 @@ class OrderHeader(Base):
 
 
 class OrderLineItem(Base):
+    """
+    Represents a specific item within an order.
+
+    Attributes:
+        line_item_id (int): Primary key.
+        order_id (int): Foreign key referencing the OrderHeader.
+        product_id (int): Foreign key referencing the Product.
+        quantity (int): Number of units ordered.
+    """
+
     __tablename__ = "order_line_items"
     line_item_id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey("order_headers.order_id"))
@@ -95,6 +161,16 @@ Base.metadata.create_all(engine)
 
 
 def divide_integer_with_remainder(number, parts):
+    """
+    Divides an integer into `parts` as evenly as possible.
+
+    Args:
+        number (int): The number to divide.
+        parts (int): The number of parts to divide into.
+
+    Returns:
+        list[int]: A list of integers where the sum equals `number`.
+    """
     quotient, remainder = divmod(number, parts)
 
     result_int = [quotient + 1] * remainder + [quotient] * (parts - remainder)
@@ -103,7 +179,20 @@ def divide_integer_with_remainder(number, parts):
 
 
 def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+    """
+    Parses command-line arguments for data generation configuration.
+
+    Returns:
+        argparse.Namespace: Parsed arguments including:
+            - num-geo (int): Number of locations.
+            - num-products (int): Number of products.
+            - num-customers (int): Number of customers.
+            - num-orders (int): Number of orders.
+            - messiness-rate (float): Probability of messy data.
+    """
+    parser = argparse.ArgumentParser(
+        description="Generate random and messy data for the database."
+    )
 
     parser.add_argument(
         "--num-geo",
@@ -124,10 +213,22 @@ def parse_arguments() -> argparse.Namespace:
         "--num-orders", type=int, default=500, help="Number of orders to generate"
     )
 
+    parser.add_argument(
+        "--messiness-rate",
+        type=float,
+        default=0.1,
+        help="Probability of generating messy data (0.0 - 1.0)",
+    )
+
     return parser.parse_args()
 
 
 def main():
+    """
+    Main execution function.
+    Initializes the database, generates random/messy data for regions, branches,
+    categories, products, customers, and orders, and commits them to the database.
+    """
     args = parse_arguments()
 
     Session = sessionmaker(bind=engine)
@@ -185,9 +286,15 @@ def main():
         try:
             sizes = divide_integer_with_remainder(args.num_products, 3)
 
-            beverages = generate_products(sizes[0], "Beverages")
-            foods = generate_products(sizes[1], "Foods")
-            sweets = generate_products(sizes[2], "Sweets")
+            beverages = generate_messy_products(
+                sizes[0], "Beverages", messiness_rate=args.messiness_rate
+            )
+            foods = generate_messy_products(
+                sizes[1], "Foods", messiness_rate=args.messiness_rate
+            )
+            sweets = generate_messy_products(
+                sizes[2], "Sweets", messiness_rate=args.messiness_rate
+            )
 
             product_id = 0
             commit_data = []
@@ -237,7 +344,9 @@ def main():
 
         # Generate customer
         try:
-            customers = generate_client(args.num_customers)
+            customers = generate_messy_client(
+                args.num_customers, messiness_rate=args.messiness_rate
+            )
             customer_id = 0
             commit_data = []
 
@@ -262,13 +371,12 @@ def main():
             session.rollback()
 
         try:
-            # Generate N = 500 orders
-            # Generate random X items for each order and random quantity
-            orders, order_items = generate_orders(
+            orders, order_items = generate_messy_orders(
                 n_orders=args.num_orders,
                 n_customers=args.num_customers,
                 n_regions=args.num_geo,
                 n_products=args.num_products,
+                messiness_rate=args.messiness_rate,
             )
 
             all_orders = list()
