@@ -1,3 +1,4 @@
+from datetime import datetime
 from random import choice, randint, random, uniform
 
 from faker import Faker
@@ -26,7 +27,7 @@ def generate_client(n: int) -> dict:
         clients[str(i)] = {
             "first_name": fn,
             "last_name": ln,
-            "email": f"{fn}.{ln}@email.com",
+            "email": f"{fn.lower()}.{ln.lower()}@email.com",
             "loyalty_tier": choice(["Gold", "Silver", "Bronze"]),
         }
 
@@ -38,7 +39,7 @@ def generate_client(n: int) -> dict:
 def mess_up_string(s: str) -> str:
     """
     Randomly modifies a string to simulate messy data.
-    
+
     Operations:
     - Randomly capitalizes or lowercases individual characters.
     - Randomly adds trailing whitespace.
@@ -377,6 +378,9 @@ def generate_orders(
             "order_id": i,
             "customer_id": randint(1, n_customers),
             "branch_id": randint(1, n_regions),
+            "order_timestamp": fake.date_time_between_dates(
+                datetime(2025, 1, 1), datetime(2025, 12, 31)
+            ),
         }
 
         # Genrate X order items

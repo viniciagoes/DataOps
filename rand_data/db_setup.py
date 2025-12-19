@@ -388,6 +388,7 @@ def main():
                         order_id=data["order_id"],
                         customer_id=data["customer_id"],
                         branch_id=data["branch_id"],
+                        order_timestamp=data["order_timestamp"],
                     )
                 )
 
